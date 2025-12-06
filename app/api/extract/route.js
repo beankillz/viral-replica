@@ -268,6 +268,40 @@ export async function POST(request) {
                                 }
                             });
                         }
+
+                        // ULTIMATE FALLBACK: Parse TSV (Since blocks/lines/words seem undefined in Render)
+                        if (!foundItems && data.tsv) {
+                            console.log('Using TSV fallback');
+                            // Format: level page_num block_num par_num line_num word_num left top width height conf text
+                            const rows = data.tsv.trim().split('\n');
+                            if (rows.length > 1) {
+                                rows.slice(1).forEach(row => {
+                                    const cols = row.split('\t');
+                                    if (cols.length < 12) return;
+
+                                    // tesseract.js TSV output format is standard
+                                    const level = parseInt(cols[0]); // 5 is word
+                                    const left = parseInt(cols[6]);
+                                    const top = parseInt(cols[7]);
+                                    const width = parseInt(cols[8]);
+                                    const height = parseInt(cols[9]);
+                                    const conf = parseFloat(cols[10]);
+                                    const text = cols[11];
+
+                                    if (level === 5 && text && text.trim().length > 1) {
+                                        textItems.push({
+                                            id: randomUUID(),
+                                            text: text.trim(),
+                                            startTime,
+                                            endTime,
+                                            confidence: conf,
+                                            bbox: { x: left, y: top, w: width, h: height }
+                                        });
+                                        foundItems = true;
+                                    }
+                                });
+                            }
+                        }
                     } catch (ocrError) {
                         console.error(`OCR error on frame ${frameNum}:`, ocrError.message);
                     }

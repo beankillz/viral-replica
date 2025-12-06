@@ -173,6 +173,22 @@ export default function Home() {
             Viral Replica
           </h1>
           <p className="text-gray-400 mt-2">Clone viral video patterns with AI</p>
+          <button
+            onClick={async () => {
+              if (confirm('Are you sure you want to delete all temporary frames and videos?')) {
+                try {
+                  const res = await fetch('/api/clean-temp', { method: 'POST' });
+                  const data = await res.json();
+                  alert(data.message);
+                } catch (e) {
+                  alert('Cleanup failed');
+                }
+              }
+            }}
+            className="text-xs text-gray-500 hover:text-red-400 mt-4 underline"
+          >
+            Clear System Cache
+          </button>
         </header>
 
         {/* Progress Steps */}
