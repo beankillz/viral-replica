@@ -302,6 +302,20 @@ export async function POST(request) {
                                 });
                             }
                         }
+
+                        // NUCLEAR OPTION: If text exists but no structure could be parsed, use raw text
+                        if (!foundItems && data.text && data.text.trim().length > 0) {
+                            console.log('☢️ NUCLEAR FALLBACK: Using raw text without bbox');
+                            textItems.push({
+                                id: randomUUID(),
+                                text: data.text.trim(),
+                                startTime,
+                                endTime,
+                                confidence: 50, // Guess
+                                bbox: { x: 0, y: 0, w: 100, h: 50 } // Dummy bbox
+                            });
+                            foundItems = true;
+                        }
                     } catch (ocrError) {
                         console.error(`OCR error on frame ${frameNum}:`, ocrError.message);
                     }
