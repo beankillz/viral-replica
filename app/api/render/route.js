@@ -148,6 +148,22 @@ export async function POST(request) {
         // Read the zip file to send as response
         const zipBuffer = await fs.readFile(zipPath);
 
+        // CLEANUP: Delete temp files to save space
+        try {
+            console.log('Cleaning up temporary files...');
+            // 1. Delete the specific output directory (contains the MP4s and ZIP)
+            await fs.remove(outputDir);
+
+            // 2. Clear the frames directory (removes all extracted screenshots)
+            const framesDir = path.join(process.cwd(), 'temp', 'frames');
+            await fs.emptyDir(framesDir);
+
+            console.log('Cleanup complete: Deleted output dir and emptied frames folder.');
+        } catch (cleanupError) {
+            console.error('Warning: Cleanup failed:', cleanupError);
+            // Don't fail the request just because cleanup failed
+        }
+
         // Return the zip file
         return new NextResponse(zipBuffer, {
             headers: {
