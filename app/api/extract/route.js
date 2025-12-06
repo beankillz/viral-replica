@@ -189,8 +189,40 @@ export async function POST(request) {
 
                         console.log(`Frame ${frameNum} raw text:`, data.text);
 
-                        // Try lines first
-                        if (data.lines && data.lines.length > 0) {
+                        // Robust parsing: traverse blocks -> paragraphs -> lines
+                        // Tesseract.js structure can vary, but blocks/paragraphs/lines is standard
+                        let foundItems = false;
+                        if (data.blocks && data.blocks.length > 0) {
+                            data.blocks.forEach(block => {
+                                if (block.paragraphs) {
+                                    block.paragraphs.forEach(paragraph => {
+                                        if (paragraph.lines) {
+                                            paragraph.lines.forEach(line => {
+                                                if (line.text.trim().length > 0) {
+                                                    textItems.push({
+                                                        id: randomUUID(),
+                                                        text: line.text.trim(),
+                                                        startTime,
+                                                        endTime,
+                                                        confidence: line.confidence,
+                                                        bbox: {
+                                                            x: line.bbox.x0,
+                                                            y: line.bbox.y0,
+                                                            w: line.bbox.x1 - line.bbox.x0,
+                                                            h: line.bbox.y1 - line.bbox.y0
+                                                        }
+                                                    });
+                                                    foundItems = true;
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                        }
+
+                        // Fallback to top-level lines if blocks traversal failed (legacy support)
+                        if (!foundItems && data.lines && data.lines.length > 0) {
                             data.lines.forEach(line => {
                                 if (line.text.trim().length > 0) {
                                     textItems.push({
@@ -204,26 +236,6 @@ export async function POST(request) {
                                             y: line.bbox.y0,
                                             w: line.bbox.x1 - line.bbox.x0,
                                             h: line.bbox.y1 - line.bbox.y0
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                        // Fallback to words if no lines detected
-                        else if (data.words && data.words.length > 0) {
-                            data.words.forEach(word => {
-                                if (word.text.trim().length > 1) { // Skip single chars
-                                    textItems.push({
-                                        id: randomUUID(),
-                                        text: word.text.trim(),
-                                        startTime,
-                                        endTime,
-                                        confidence: word.confidence,
-                                        bbox: {
-                                            x: word.bbox.x0,
-                                            y: word.bbox.y0,
-                                            w: word.bbox.x1 - word.bbox.x0,
-                                            h: word.bbox.y1 - word.bbox.y0
                                         }
                                     });
                                 }
