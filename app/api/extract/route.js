@@ -180,7 +180,12 @@ export async function POST(request) {
                     console.log(`OCR on frame ${frameNum} (${startTime.toFixed(2)}s): ${framePath}`);
 
                     try {
-                        const { data } = await Tesseract.recognize(framePath, 'eng');
+                        // FIX FOR RENDER: Explicitly set worker path to avoid /ROOT/ prefix issue
+                        const workerPath = path.join(process.cwd(), 'node_modules', 'tesseract.js', 'src', 'worker-script', 'node', 'index.js');
+
+                        const { data } = await Tesseract.recognize(framePath, 'eng', {
+                            workerPath: workerPath
+                        });
 
                         console.log(`Frame ${frameNum} raw text:`, data.text);
 
