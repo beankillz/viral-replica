@@ -399,6 +399,7 @@ export default function Home() {
         </div>
       </div>
       {/* Full Screen Loading Overlay */}
+      {/* Full Screen Loading Overlay for Rendering */}
       {isRendering && (
         <div className="fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
           <div className="relative w-24 h-24 mb-6">
@@ -407,6 +408,24 @@ export default function Home() {
           </div>
           <h2 className="text-2xl font-bold text-white mb-2 animate-pulse">Compiling your viral videos...</h2>
           <p className="text-gray-400">This may take a minute. Please don&apos;t close this tab.</p>
+        </div>
+      )}
+
+      {/* Full Screen Loading Overlay for Extraction */}
+      {(isExtracting || isUploading) && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center backdrop-blur-sm">
+          <div className="relative w-24 h-24 mb-6">
+            <div className="absolute inset-0 border-4 border-gray-700/50 rounded-full"></div>
+            <div className="absolute inset-0 border-4 border-purple-500 rounded-full border-t-transparent animate-spin"></div>
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-2 animate-pulse">
+            {isUploading ? 'Uploading Video...' : 'Analyzing Video Patterns...'}
+          </h2>
+          <p className="text-gray-400 max-w-md text-center px-4">
+            {isUploading
+              ? 'Please wait while we secure your video.'
+              : 'Our AI is watching your video, taking screenshots, and detecting viral patterns. This takes about 30-60 seconds.'}
+          </p>
         </div>
       )}
     </main >
