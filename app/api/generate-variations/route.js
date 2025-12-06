@@ -25,42 +25,41 @@ export async function POST(request) {
             );
         }
 
-        const prompt = `You are a marketing content generator. Generate exactly 10 variations of short-form video text, each using a DIFFERENT psychological trigger.
+        const prompt = `You are a viral content optimizer. Your goal is to IMPROVE the original hook and CTA while maintaining their core message and pattern.
 
 Original Hook: "${hook}"
 Original CTA: "${cta}"
 
-Create one variation for each of these angles (in order):
-1. Fear - What they'll lose if they don't act
-2. Greed - The gains/benefits they'll receive  
-3. Curiosity - Intrigue and mystery
-4. Urgency - Time-sensitive language
-5. Social Proof - "Others are doing this"
-6. FOMO - Fear of missing out
-7. Humor - Funny or lighthearted approach
-8. Authority - Expert or credible tone
-9. Scarcity - Limited availability
-10. Trust - Building credibility and safety
+Generate 10 variations. For each variation:
+1. "Hook": Rewrite the original hook to be punchier, but keep the SAME topic/meaning.
+2. "CTA": Rewrite the original CTA to be more compelling, but keep the SAME specific action (e.g. if original says "follow", new one must say "follow").
+3. "Angle": The psychological trigger used.
 
-Important:
-- Keep hooks SHORT (under 10 words)
-- Keep CTAs ACTIONABLE (under 8 words)
-- Make each variation DISTINCTLY different from the original
-- Match the energy and style of short-form viral content
+Angles to cover:
+1. Fear (Loss Aversion)
+2. Greed (Direct Benefit)
+3. Curiosity (Information Gap)
+4. Urgency (Time Sensitivity)
+5. Social Proof (Bandwagon)
+6. FOMO (Fear of Missing Out)
+7. Humor (Entertainment)
+8. Authority (Expertise)
+9. Scarcity (Limited Resource)
+10. Trust (Reliability)
+
+CRITICAL RULES:
+- Do NOT generate random text. You MUST optimize the specific input text provided above.
+- If the original hook is about "cats", the variations MUST be about "cats".
+- If the original CTA is "click link", the variations MUST be about "clicking the link".
+- Keep hooks under 12 words.
+- Keep CTAs under 6 words.
+- Maintain the "viral pattern" of the original (e.g., if it's a question, try to keep it a question or a strong statement).
 
 Output exactly this JSON shape:
 {
   "variations": [
     { "hook": "...", "cta": "...", "angle": "Fear" },
-    { "hook": "...", "cta": "...", "angle": "Greed" },
-    { "hook": "...", "cta": "...", "angle": "Curiosity" },
-    { "hook": "...", "cta": "...", "angle": "Urgency" },
-    { "hook": "...", "cta": "...", "angle": "Social Proof" },
-    { "hook": "...", "cta": "...", "angle": "FOMO" },
-    { "hook": "...", "cta": "...", "angle": "Humor" },
-    { "hook": "...", "cta": "...", "angle": "Authority" },
-    { "hook": "...", "cta": "...", "angle": "Scarcity" },
-    { "hook": "...", "cta": "...", "angle": "Trust" }
+    ...
   ]
 }`;
 
