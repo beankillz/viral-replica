@@ -188,6 +188,8 @@ export async function POST(request) {
                         });
 
                         console.log(`Frame ${frameNum} raw text:`, data.text);
+                        console.log(`Frame ${frameNum} structure keys:`, Object.keys(data));
+                        console.log(`Frame ${frameNum} counts: blocks=${data.blocks?.length}, lines=${data.lines?.length}, words=${data.words?.length}`);
 
                         // Robust parsing: traverse blocks -> paragraphs -> lines
                         // Tesseract.js structure can vary, but blocks/paragraphs/lines is standard
@@ -223,6 +225,7 @@ export async function POST(request) {
 
                         // Fallback to top-level lines if blocks traversal failed (legacy support)
                         if (!foundItems && data.lines && data.lines.length > 0) {
+                            console.log('Using lines fallback');
                             data.lines.forEach(line => {
                                 if (line.text.trim().length > 0) {
                                     textItems.push({
@@ -238,6 +241,30 @@ export async function POST(request) {
                                             h: line.bbox.y1 - line.bbox.y0
                                         }
                                     });
+                                    foundItems = true;
+                                }
+                            });
+                        }
+
+                        // Fallback to words if no lines detected
+                        if (!foundItems && data.words && data.words.length > 0) {
+                            console.log('Using words fallback');
+                            data.words.forEach(word => {
+                                if (word.text.trim().length > 1) { // Skip single chars
+                                    textItems.push({
+                                        id: randomUUID(),
+                                        text: word.text.trim(),
+                                        startTime,
+                                        endTime,
+                                        confidence: word.confidence,
+                                        bbox: {
+                                            x: word.bbox.x0,
+                                            y: word.bbox.y0,
+                                            w: word.bbox.x1 - word.bbox.x0,
+                                            h: word.bbox.y1 - word.bbox.y0
+                                        }
+                                    });
+                                    foundItems = true;
                                 }
                             });
                         }
