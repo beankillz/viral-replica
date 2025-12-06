@@ -1,12 +1,20 @@
 import { NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
 
-const groq = new Groq({
-    apiKey: process.env.GROQ_API_KEY
-});
-
 export async function POST(request) {
     try {
+        if (!process.env.GROQ_API_KEY) {
+            console.error('Missing GROQ_API_KEY in generate-variations');
+            return NextResponse.json({
+                error: 'Missing GROQ_API_KEY',
+                details: 'Please add GROQ_API_KEY to your .env file'
+            }, { status: 500 });
+        }
+
+        const groq = new Groq({
+            apiKey: process.env.GROQ_API_KEY
+        });
+
         const body = await request.json();
         const { hook, cta } = body;
 
@@ -63,7 +71,7 @@ Output exactly this JSON shape:
                     content: prompt
                 }
             ],
-            model: 'llama-3.1-70b-versatile',
+            model: 'llama-3.3-70b-versatile',
             response_format: { type: 'json_object' }
         });
 
