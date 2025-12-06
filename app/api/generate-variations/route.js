@@ -64,16 +64,39 @@ Output exactly this JSON shape:
   ]
 }`;
 
-        const completion = await groq.chat.completions.create({
-            messages: [
-                {
-                    role: 'user',
-                    content: prompt
+        const MAX_RETRIES = 3;
+        const RETRY_DELAY = 1000;
+
+        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        let completion;
+        let lastError;
+
+        for (let i = 0; i < MAX_RETRIES; i++) {
+            try {
+                completion = await groq.chat.completions.create({
+                    messages: [
+                        {
+                            role: 'user',
+                            content: prompt
+                        }
+                    ],
+                    model: 'llama-3.3-70b-versatile',
+                    response_format: { type: 'json_object' }
+                });
+                break; // Success, exit loop
+            } catch (err) {
+                console.warn(`Attempt ${i + 1} failed: ${err.message}`);
+                lastError = err;
+                if (i < MAX_RETRIES - 1) {
+                    await delay(RETRY_DELAY * Math.pow(2, i)); // Exponential backoff
                 }
-            ],
-            model: 'llama-3.3-70b-versatile',
-            response_format: { type: 'json_object' }
-        });
+            }
+        }
+
+        if (!completion) {
+            throw lastError || new Error('Failed to connect to AI service after retries');
+        }
 
         const content = completion.choices[0]?.message?.content;
 
