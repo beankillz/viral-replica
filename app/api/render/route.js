@@ -46,7 +46,10 @@ export async function POST(request) {
                 console.log(`Starting render ${index + 1}/${variations.length}...`);
 
                 const filters = [];
-                const fontFile = "C\\\\:/Windows/Fonts/arial.ttf";
+                // FIX: Use local font file (works on Windows & Linux)
+                // Normalize path for FFmpeg filter (replace backslashes with forward slashes, escape colons)
+                const fontPath = path.join(process.cwd(), 'public', 'fonts', 'Roboto-Bold.ttf');
+                const fontFile = fontPath.replace(/\\/g, '/').replace(/:/g, '\\\\:');
 
                 // Use timing from the variation if available, otherwise from baseTextMap
 
